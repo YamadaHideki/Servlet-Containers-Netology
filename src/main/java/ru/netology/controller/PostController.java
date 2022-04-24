@@ -27,7 +27,11 @@ public class PostController {
     // TODO: deserialize request & serialize response
     response.setContentType(APPLICATION_JSON);
     var post = service.getById(id);
-    response.getWriter().print(gson.toJson(post));
+    if (post == null) {
+      response.getWriter().print("{\"error\": \"not found by id\"}");
+    } else {
+      response.getWriter().print(gson.toJson(post));
+    }
   }
 
   public void save(Reader body, HttpServletResponse response) throws IOException {
@@ -43,5 +47,7 @@ public class PostController {
 
   public void removeById(long id, HttpServletResponse response) {
     // TODO: deserialize request & serialize response
+    response.setContentType(APPLICATION_JSON);
+    service.removeById(id);
   }
 }
