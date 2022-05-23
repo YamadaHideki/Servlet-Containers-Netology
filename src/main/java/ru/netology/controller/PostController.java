@@ -29,8 +29,9 @@ public class PostController {
         // TODO: deserialize request & serialize response
         response.setContentType(APPLICATION_JSON);
         var post = service.getById(id);
+
         if (post == null) {
-            response.getWriter().print("{\"error\": \"not found by id\"}");
+            response.setStatus(404);
         } else {
             response.getWriter().print(gson.toJson(post));
         }
@@ -40,8 +41,9 @@ public class PostController {
         response.setContentType(APPLICATION_JSON);
         final var post = gson.fromJson(body, Post.class);
         final var data = service.save(post);
+
         if (data == null) {
-            response.getWriter().print("{\"error\": \"incorrect id\"}");
+            response.setStatus(404);
         } else {
             response.getWriter().print(gson.toJson(data));
         }
@@ -50,6 +52,11 @@ public class PostController {
     public void removeById(long id, HttpServletResponse response) {
         // TODO: deserialize request & serialize response
         response.setContentType(APPLICATION_JSON);
-        service.removeById(id);
+
+        if (service.getById(id) == null) {
+            response.setStatus(404);
+        } else {
+            service.removeById(id);
+        }
     }
 }
