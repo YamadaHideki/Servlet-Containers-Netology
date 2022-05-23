@@ -9,45 +9,51 @@ import java.io.IOException;
 import java.io.Reader;
 
 public class PostController {
-  public static final String APPLICATION_JSON = "application/json";
-  private final PostService service;
-  private final Gson gson = new Gson();
+    public static final String APPLICATION_JSON = "application/json";
+    private final PostService service;
+    private final Gson gson = new Gson();
 
-  public PostController(PostService service) {
-    this.service = service;
-  }
-
-  public void all(HttpServletResponse response) throws IOException {
-    response.setContentType(APPLICATION_JSON);
-    final var data = service.all();
-    response.getWriter().print(gson.toJson(data));
-  }
-
-  public void getById(long id, HttpServletResponse response) throws IOException {
-    // TODO: deserialize request & serialize response
-    response.setContentType(APPLICATION_JSON);
-    var post = service.getById(id);
-    if (post == null) {
-      response.getWriter().print("{\"error\": \"not found by id\"}");
-    } else {
-      response.getWriter().print(gson.toJson(post));
+    public PostController(PostService service) {
+        this.service = service;
     }
-  }
 
-  public void save(Reader body, HttpServletResponse response) throws IOException {
-    response.setContentType(APPLICATION_JSON);
-    final var post = gson.fromJson(body, Post.class);
-    final var data = service.save(post);
-    if (data == null) {
-      response.getWriter().print("{\"error\": \"incorrect id\"}");
-    } else {
-      response.getWriter().print(gson.toJson(data));
+    public void all(HttpServletResponse response) throws IOException {
+        response.setContentType(APPLICATION_JSON);
+        final var data = service.all();
+        response.getWriter().print(gson.toJson(data));
     }
-  }
 
-  public void removeById(long id, HttpServletResponse response) {
-    // TODO: deserialize request & serialize response
-    response.setContentType(APPLICATION_JSON);
-    service.removeById(id);
-  }
+    public void getById(long id, HttpServletResponse response) throws IOException {
+        // TODO: deserialize request & serialize response
+        response.setContentType(APPLICATION_JSON);
+        var post = service.getById(id);
+
+        if (post == null) {
+            response.setStatus(404);
+        } else {
+            response.getWriter().print(gson.toJson(post));
+        }
+    }
+
+    public void save(Reader body, HttpServletResponse response) throws IOException {
+        response.setContentType(APPLICATION_JSON);
+        final var post = gson.fromJson(body, Post.class);
+        final var data = service.save(post);
+
+        if (data == null) {
+            response.setStatus(404);
+        } else {
+            response.getWriter().print(gson.toJson(data));
+        }
+    }
+
+    public void removeById(long id, HttpServletResponse response) {
+        // TODO: deserialize request & serialize response
+        response.setContentType(APPLICATION_JSON);
+        if (service.getById(id) == null) {
+            response.setStatus(404);
+        } else {
+            service.removeById(id);
+        }
+    }
 }
